@@ -2,7 +2,7 @@ import { Job } from "bullmq";
 
 export async function processEmail(job: Job) {
 
-    const { to, subject, bpdy } = job.data;
+    const { to, subject, body } = job.data;
 
     console.log(`Sending email to ${to}`);
 

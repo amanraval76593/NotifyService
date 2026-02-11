@@ -3,7 +3,7 @@ import config from '../config'
 
 
 export const postgresPool = new Pool({
-    host: config.POSTGRES_DB,
+    host: config.POSTGRES_HOST,
     port: Number(config.POSTGRES_PORT),
     user: config.POSTGRES_USER,
     password: config.POSTGRES_PASSWORD,
@@ -14,6 +14,12 @@ export const postgresPool = new Pool({
 })
 
 export const connectPostgres = async () => {
-    await postgresPool.query("SELECT 1");
-    console.log("PostgreSQL connected");
+    try{
+          await postgresPool.query("SELECT 1");
+            console.log("PostgreSQL connected");
+    }catch(error){
+        console.error("PostgreSQL connection error:", error);
+       throw error;
+    }
+  
 }
