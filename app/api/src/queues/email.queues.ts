@@ -1,5 +1,5 @@
 import { Queue } from "bullmq";
-import { bullConnection } from "../db_config.ts/connection";
+import { bullConnection } from "../db_config/connection";
 
 export const emailQueue = new Queue("email-queue", {
     connection: bullConnection,

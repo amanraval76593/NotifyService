@@ -7,7 +7,7 @@ export async function emailController(req: Request, res: Response, next: NextFun
 
     if (!to || !subject || !body) {
         return res.status(400).json({
-            message: "to,subject and bosy are required",
+            message: "to,subject and body are required",
         })
     }
 

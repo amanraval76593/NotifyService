@@ -4,5 +4,5 @@
     "rootDir": "./src",
     "outDir": "../../dist/api"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/db_config"]
 }
