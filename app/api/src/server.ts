@@ -1,6 +1,6 @@
 import { app } from "./app";
-import { connectPostgres } from "./db_config.ts/postgres";
-import redisClient from "./db_config.ts/redis";
+import { connectPostgres } from "./db_config/postgres";
+import redisClient from "./db_config/redis";
 
 const port = 3000;
 
