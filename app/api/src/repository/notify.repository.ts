@@ -11,12 +11,12 @@ export class NotifyRepository{
             user_id,
             event_type,
             channel_type,
-            notify_status,
+            notify_status
             )
             VALUES($1,$2,$3,$4)
             RETURNING *
             `,
-            [data.userId,data.eventType,data.channel,data.status]
+            [data.userId,data.eventType,data.channelType,data.status]
         )
         return result.rows[0];
     }

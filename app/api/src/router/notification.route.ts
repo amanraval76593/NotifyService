@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { emailController } from "../controller/email.controller";
+import { initializeNotificationController } from "../controller/notify.controller";
+import { validate } from "../middleware/validate.middleware";
+import { initializeNotificationSchema } from "../types/validate_notify.types";
 
 const router = Router();
 
-router.post("/email", emailController)
+router.post("/notify",validate(initializeNotificationSchema), initializeNotificationController)
 
 export default router;
