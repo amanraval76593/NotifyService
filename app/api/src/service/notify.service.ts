@@ -1,19 +1,32 @@
 import { initializeNotificationDto } from "../interface/notify.interface";
 import { NotifyRepository } from "../repository/notify.repository";
-import { NotifyStatus } from "../types/notify.types";
+import { ChannelType, NotifyStatus } from "../types/notify.types";
 import { enqueueEmail } from "./email.service";
 
 export class NotifyService{
 
     static async initializeNotificationService(data:initializeNotificationDto){
 
-        const {userId,eventType,channelType,channelPayload}=data;
+        const {userId,eventType,channels}=data;
 
-        const notifyData=await NotifyRepository.initializeNotificationData({channelType:channelType,eventType:eventType,userId:userId,status:NotifyStatus.QUEUED});
+        const notifyData=await NotifyRepository.initializeNotificationData({eventType:eventType,userId:userId});
 
-        if(channelPayload.email){
-            await enqueueEmail(channelPayload.email);
-        }
+        const notifyId=notifyData.id;
+
+        channels.forEach(async (channel)=>{
+            
+            switch (channel.type){
+
+                case ChannelType.EMAIL:{
+                    const channelData=await NotifyRepository.initializeNotificationChannelData({notificationId:notifyId,attemptCount:1,channelType:ChannelType.EMAIL,notifyStatus:NotifyStatus.QUEUED,payload:channel.payload})
+                    await enqueueEmail(channel.payload,channelData.id);
+                    break;
+                }
+
+                default:
+                    break
+            }
+        })
 
         return notifyData;
     }
