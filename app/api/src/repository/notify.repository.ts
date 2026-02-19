@@ -1,6 +1,6 @@
 import { postgresPool } from "../db_config/postgres";
-import { notificationEntity } from "../interface/notify.interface";
-import {  notificationsRow } from "../types/notify.types";
+import { notificationChannelEntity, notificationEntity } from "../interface/notify.interface";
+import {  notificationChannelRow, notificationsRow } from "../types/notify.types";
 
 export class NotifyRepository{
 
@@ -9,15 +9,33 @@ export class NotifyRepository{
             `
             INSERT INTO notifications(
             user_id,
-            event_type,
-            channel_type,
-            notify_status
+            event_type
             )
-            VALUES($1,$2,$3,$4)
+            VALUES($1,$2)
             RETURNING *
             `,
-            [data.userId,data.eventType,data.channelType,data.status]
+            [data.userId,data.eventType]
         )
+        return result.rows[0];
+    }
+
+    static async initializeNotificationChannelData(data:notificationChannelEntity):Promise<notificationChannelRow>{
+        
+        const result=await postgresPool.query<notificationChannelRow>(
+            `
+            INSERT INTO notifications_channels(
+            notification_id,
+            channel_type,
+            payload,
+            notify_status, 
+            attempt_count
+            )
+            VALUES($1,$2,$3,$4,$5)
+            RETURNING *
+            `,
+            [data.notificationId,data.channelType,data.payload,data.notifyStatus,data.attemptCount]
+        );
+
         return result.rows[0];
     }
 }

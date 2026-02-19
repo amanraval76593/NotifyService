@@ -8,9 +8,9 @@ interface emailPayload {
     body: string
 }
 
-export async function enqueueEmail(payload: emailPayload) {
+export async function enqueueEmail(payload: emailPayload,notifyId:string) {
     await emailQueue.add("email-queue", payload, {
-        jobId: `email:${payload.to}:${Date.now()}`,
+        jobId: notifyId,
     });
     
 }  

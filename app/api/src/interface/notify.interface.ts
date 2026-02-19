@@ -3,9 +3,16 @@ import { ChannelType, NotifyStatus } from "../types/notify.types";
 export interface notificationEntity{
     userId:string,
     eventType:string,
-    channelType:ChannelType;
-    status:NotifyStatus;
 }
+
+export interface notificationChannelEntity{
+    notificationId:string,
+    channelType:ChannelType,
+    payload:Record<string,any>,
+    notifyStatus:NotifyStatus,
+    attemptCount:Number,
+}
+
 
 export interface EmailPayload {
   to: string;
@@ -23,9 +30,12 @@ export interface channelPayload{
     sms?:SmsPayload
 }
 
+export type channels=
+    | { type:ChannelType.EMAIL;payload:EmailPayload}
+    | { type: ChannelType.SMS; payload: SmsPayload };
+
 export interface initializeNotificationDto{
     userId:string;
     eventType:string;
-    channelType:ChannelType;
-    channelPayload:channelPayload;
+    channels:channels[]
 }

@@ -9,31 +9,27 @@ export const emailPayloadSchema=z.object({
 })
 
 export const smsPayloadSchema=z.object({
-    phoneNumber:z.string().min(10),
+    to:z.string().min(10),
     message:z.string().min(1)
 })
+
+export const channelSchema=z.discriminatedUnion("type", [
+
+  z.object({
+    type: z.literal(ChannelType.EMAIL),
+    payload: emailPayloadSchema
+  }),
+  z.object({
+    type: z.literal(ChannelType.SMS),
+    payload: smsPayloadSchema
+  })
+  // Add more channel types here as needed
+]);
 
 export const initializeNotificationSchema=z.object({
     body:z.object({
         userId:z.string(),
-        eventType:z.string(),
-        channelType:z.enum(ChannelType),
-        channelPayload:z.object({
-            email:emailPayloadSchema.optional(),
-            sms:smsPayloadSchema.optional()
-        })
-    }).refine(
-        (data)=>{
-            if(data.channelType=="Email" && !data.channelPayload.email){
-                return false;
-            }
-            if(data.channelType=="SMS" && !data.channelPayload.sms){
-                return false;
-            }
-            return true;
-        },
-        {
-            message: 'channelPayload must contain the field matching channelType',
-        }
-    )
+        eventType:z.string().min(1),
+        channels:z.array(channelSchema).min(1)
+    })
 });
