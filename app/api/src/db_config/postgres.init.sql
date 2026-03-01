@@ -2,7 +2,7 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TYPE channel as ENUM('Email','Sms');
-CREATE TYPE notify_status AS ENUM ('Queued', 'Processing', 'Success', 'Failed');
+CREATE TYPE notify_status AS ENUM ('Queued', 'Processing', 'Success','Retrying','Failed');
 
 CREATE TABLE IF NOT EXISTS notifications(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -21,4 +21,14 @@ CREATE TABLE IF NOT EXISTS notifications_channels(
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 
+);
+
+CREATE TABLE IF NOT EXISTS failed_notifications_channels(
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    notifications_channel_id UUID REFERENCES notifications_channels(id) ON DELETE CASCADE,
+    error_message TEXT,
+    channel_type channel NOT NULL,
+    payload JSONB NOT NULL,
+    attempt_count INT DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );

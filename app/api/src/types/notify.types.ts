@@ -8,8 +8,8 @@ export enum NotifyStatus{
     QUEUED="Queued",
     PROCESSING="Processing",
     SUCCESS="Success",
-    FAILED="Failed"
-
+    FAILED="Failed",
+    RETRYING="Retrying",
 }
 
 export interface notificationsRow{
