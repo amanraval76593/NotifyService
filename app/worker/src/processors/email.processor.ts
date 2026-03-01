@@ -14,12 +14,13 @@ export async function processEmail(job: Job) {
     try{
         await sendEmail();
 
-        await NotifyRepository.updateNotifyStatus(NotifyStatus.SUCCESS,notificationId)
+        await NotifyRepository.updateNotifyStatus(NotifyStatus.SUCCESS,notificationId,job.attemptsMade)
 
         console.log(`Email sent to ${to}`);
     }catch(error){
         console.error(`Failed to send the email : ${error}`)
-        await NotifyRepository.updateNotifyStatus(NotifyStatus.SUCCESS,notificationId)
+        await NotifyRepository.updateNotifyStatus(NotifyStatus.SUCCESS,notificationId,job.attemptsMade)
+        throw error
     }
    
 }

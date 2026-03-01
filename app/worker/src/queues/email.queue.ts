@@ -11,12 +11,12 @@ export function createEmailWorker() {
         async (job) => {
             try{
                 const notificationId=job.id;
+                const attemptCount=job.attemptsMade;
+                if(!notificationId) throw Error()
 
-            if(!notificationId) throw Error()
+                await NotifyRepository.updateNotifyStatus(NotifyStatus.PROCESSING,notificationId,attemptCount)
 
-            await NotifyRepository.updateNotifyStatus(NotifyStatus.PROCESSING,notificationId)
-
-            await processEmail(job);
+                await processEmail(job);
 
             }catch(error){
                 console.error(`Error processing job : ${error}`)
@@ -26,7 +26,12 @@ export function createEmailWorker() {
         },
         {
             connection: bullConnection,
-            concurrency: 5
+            concurrency: 5,
+            settings:{
+                 backoffStrategy: (attemptsMade: number) => {
+                    return Math.pow(2, attemptsMade) * 1000; 
+                },
+            }
         }
     );
 

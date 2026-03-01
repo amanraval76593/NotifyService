@@ -11,6 +11,11 @@ interface emailPayload {
 export async function enqueueEmail(payload: emailPayload,notifyId:string) {
     await emailQueue.add("email-queue", payload, {
         jobId: notifyId,
+        attempts:3,
+        backoff:{
+            type:"exponential",
+            delay:2000
+        }
     });
     
 }  
