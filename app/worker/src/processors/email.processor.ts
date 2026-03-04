@@ -1,11 +1,11 @@
 import { Job } from "bullmq";
 import { NotifyRepository } from "../repository/notify.repository";
-import { NotifyStatus } from "../types/notify.types";
+import { ChannelType, NotifyPriority, NotifyStatus } from "../types/notify.types";
 
 export async function processEmail(job: Job) {
 
-    const { to, subject, body } = job.data;
-
+    const { to, subject, body,notifyPriority } = job.data;
+    console.log( notifyPriority,8);
     const notificationId=job.id;
 
     if(!notificationId) throw Error()
@@ -14,16 +14,40 @@ export async function processEmail(job: Job) {
     try{
         await sendEmail();
 
-        await NotifyRepository.updateNotifyStatus(NotifyStatus.SUCCESS,notificationId)
+        await NotifyRepository.updateNotifyStatus(NotifyStatus.SUCCESS,notificationId,job.attemptsMade);
 
         console.log(`Email sent to ${to}`);
-    }catch(error){
-        console.error(`Failed to send the email : ${error}`)
-        await NotifyRepository.updateNotifyStatus(NotifyStatus.SUCCESS,notificationId)
+
+    }catch (error) {
+        console.error(`Failed to send the email : ${error}`);
+
+        const maxAttempts = job.opts.attempts ?? 1;
+        const isLastAttempt = job.attemptsMade >= maxAttempts - 1; 
+
+        if (isLastAttempt) {
+            console.log(`Max retries reached (${job.attemptsMade}). Moving to DLQ.`);
+            const {notifyPriority,...emailPayload}=job.data;
+           await NotifyRepository.addFailedNotifications({
+                notificationChannelId: notificationId,
+                channelType: ChannelType.EMAIL,
+                attemptCount: job.attemptsMade,
+                payload: emailPayload,
+                notifyPriority:notifyPriority,
+                errorMessage: error instanceof Error ? error.message : String(error), 
+            });
+            await NotifyRepository.updateNotifyStatus(NotifyStatus.FAILED, notificationId, job.attemptsMade);
+
+        } else {
+            console.log(`Retrying the job. Attempt: ${job.attemptsMade + 1} of ${maxAttempts}`);
+            await NotifyRepository.updateNotifyStatus(NotifyStatus.RETRYING, notificationId, job.attemptsMade);
+        }
+
+        throw error;
     }
    
 }
 
 async function sendEmail() {
-    return new Promise((res) => setTimeout(res, 500));
+    throw new Error("Failed to send Email");
+    // return new Promise((res) => setTimeout(res, 500));
 }

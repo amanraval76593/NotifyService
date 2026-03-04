@@ -1,5 +1,5 @@
 import {z} from "zod";
-import { ChannelType } from "./notify.types";
+import { ChannelType, NotifyPriority } from "./notify.types";
 
 
 export const emailPayloadSchema=z.object({
@@ -17,11 +17,14 @@ export const channelSchema=z.discriminatedUnion("type", [
 
   z.object({
     type: z.literal(ChannelType.EMAIL),
-    payload: emailPayloadSchema
+    payload: emailPayloadSchema,
+    notifyPriority:z.enum(NotifyPriority)
+
   }),
   z.object({
     type: z.literal(ChannelType.SMS),
-    payload: smsPayloadSchema
+    payload: smsPayloadSchema,
+    notifyPriority:z.enum(NotifyPriority)
   })
   // Add more channel types here as needed
 ]);

@@ -4,12 +4,18 @@ export enum ChannelType{
     SMS="SMS"
 }
 
+export enum NotifyPriority{
+    HIGH="HIGH",
+    MEDIUM="MEDIUM",
+    LOW="LOW"
+}
+
 export enum NotifyStatus{
     QUEUED="Queued",
     PROCESSING="Processing",
     SUCCESS="Success",
-    FAILED="Failed"
-
+    FAILED="Failed",
+    RETRYING="Retrying",
 }
 
 export interface notificationsRow{
@@ -25,6 +31,7 @@ export interface notificationChannelRow{
     channel_type:ChannelType;
     payload:Record<string,unknown>;
     notify_status:NotifyStatus;
+    notify_priority:NotifyPriority;
     attempt_count:number;
     created_at:Date;
     updated_at:Date;
