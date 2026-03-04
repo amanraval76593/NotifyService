@@ -1,4 +1,4 @@
-import { ChannelType, NotifyStatus } from "../types/notify.types";
+import { ChannelType, NotifyPriority, NotifyStatus } from "../types/notify.types";
 
 export interface notificationEntity{
     userId:string,
@@ -9,6 +9,7 @@ export interface notificationChannelEntity{
     notificationId:string,
     channelType:ChannelType,
     payload:Record<string,any>,
+    notifyPriority:NotifyPriority,
     notifyStatus:NotifyStatus,
     attemptCount:Number,
 }
@@ -31,8 +32,8 @@ export interface channelPayload{
 }
 
 export type channels=
-    | { type:ChannelType.EMAIL;payload:EmailPayload}
-    | { type: ChannelType.SMS; payload: SmsPayload };
+    | { type:ChannelType.EMAIL;payload:EmailPayload;notifyPriority:NotifyPriority}
+    | { type: ChannelType.SMS; payload: SmsPayload;notifyPriority:NotifyPriority};
 
 export interface initializeNotificationDto{
     userId:string;

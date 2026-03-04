@@ -1,11 +1,12 @@
 import { emailQueue } from "../queues/email.queues"
-import { NotifyRepository } from "../repository/notify.repository";
+import { NotifyPriority } from "../types/notify.types";
 
 
 interface emailPayload {
     to: string,
     subject: string,
-    body: string
+    body: string,
+    notifyPriority:NotifyPriority
 }
 
 export async function enqueueEmail(payload: emailPayload,notifyId:string) {

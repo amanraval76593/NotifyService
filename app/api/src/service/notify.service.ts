@@ -18,8 +18,8 @@ export class NotifyService{
             switch (channel.type){
 
                 case ChannelType.EMAIL:{
-                    const channelData=await NotifyRepository.initializeNotificationChannelData({notificationId:notifyId,attemptCount:1,channelType:ChannelType.EMAIL,notifyStatus:NotifyStatus.QUEUED,payload:channel.payload})
-                    await enqueueEmail(channel.payload,channelData.id);
+                    const channelData=await NotifyRepository.initializeNotificationChannelData({notificationId:notifyId,attemptCount:1,channelType:ChannelType.EMAIL,notifyStatus:NotifyStatus.QUEUED,payload:channel.payload,notifyPriority:channel.notifyPriority})
+                    await enqueueEmail({...channel.payload,notifyPriority:channel.notifyPriority},channelData.id);
                     break;
                 }
 

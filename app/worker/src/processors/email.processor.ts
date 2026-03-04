@@ -1,11 +1,11 @@
 import { Job } from "bullmq";
 import { NotifyRepository } from "../repository/notify.repository";
-import { ChannelType, NotifyStatus } from "../types/notify.types";
+import { ChannelType, NotifyPriority, NotifyStatus } from "../types/notify.types";
 
 export async function processEmail(job: Job) {
 
-    const { to, subject, body } = job.data;
-
+    const { to, subject, body,notifyPriority } = job.data;
+    console.log( notifyPriority,8);
     const notificationId=job.id;
 
     if(!notificationId) throw Error()
@@ -26,15 +26,17 @@ export async function processEmail(job: Job) {
 
         if (isLastAttempt) {
             console.log(`Max retries reached (${job.attemptsMade}). Moving to DLQ.`);
-            await NotifyRepository.addFailedNotifications({
+            const {notifyPriority,...emailPayload}=job.data;
+           await NotifyRepository.addFailedNotifications({
                 notificationChannelId: notificationId,
                 channelType: ChannelType.EMAIL,
                 attemptCount: job.attemptsMade,
-                payload: job.data,
+                payload: emailPayload,
+                notifyPriority:notifyPriority,
                 errorMessage: error instanceof Error ? error.message : String(error), 
             });
             await NotifyRepository.updateNotifyStatus(NotifyStatus.FAILED, notificationId, job.attemptsMade);
-            
+
         } else {
             console.log(`Retrying the job. Attempt: ${job.attemptsMade + 1} of ${maxAttempts}`);
             await NotifyRepository.updateNotifyStatus(NotifyStatus.RETRYING, notificationId, job.attemptsMade);

@@ -27,12 +27,13 @@ export class NotifyRepository{
                 error_message,
                 channel_type,
                 payload,
+                notify_priority,
                 attempt_count
             )
-            VALUES($1,$2,$3,$4,$5)
+            VALUES($1,$2,$3,$4,$5,$6)
             RETURNING *
             `,
-            [data.notificationChannelId,data.errorMessage,data.channelType,data.payload,data.attemptCount]
+            [data.notificationChannelId,data.errorMessage,data.channelType,data.payload,data.notifyPriority,data.attemptCount]
         )
         return result.rows[0];
     }
