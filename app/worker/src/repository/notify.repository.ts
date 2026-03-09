@@ -1,10 +1,10 @@
 import { postgresPool } from "../dbConfig/postgres";
-import { failedNotificationChannelEntity, failedNotificationChannelRow, notificationsRow, NotifyStatus } from "../types/notify.types";
+import { failedNotificationChannelEntity, failedNotificationChannelRow, notificationChannelRow, notificationsRow, NotifyStatus } from "../types/notify.types";
 
-export class NotifyRepository{
+export class NotifyRepository {
 
-    static async updateNotifyStatus(notifyStatus:NotifyStatus,notificationId:string,attemptCount:number){
-        const result =await postgresPool.query<notificationsRow>(
+    static async updateNotifyStatus(notifyStatus: NotifyStatus, notificationId: string, attemptCount: number) {
+        const result = await postgresPool.query<notificationChannelRow>(
             `
             UPDATE notifications_channels
             SET notify_status=$1,
@@ -13,14 +13,14 @@ export class NotifyRepository{
             WHERE id=$3
             RETURNING *
             `,
-            [notifyStatus,attemptCount, notificationId]
+            [notifyStatus, attemptCount, notificationId]
         );
 
         return result.rows[0];
     }
 
-    static async addFailedNotifications(data:failedNotificationChannelEntity):Promise<failedNotificationChannelRow>{
-        const result =await postgresPool.query<failedNotificationChannelRow>(
+    static async addFailedNotifications(data: failedNotificationChannelEntity): Promise<failedNotificationChannelRow> {
+        const result = await postgresPool.query<failedNotificationChannelRow>(
             `
             INSERT INTO failed_notifications_channels(
                 notifications_channel_id,
@@ -33,7 +33,22 @@ export class NotifyRepository{
             VALUES($1,$2,$3,$4,$5,$6)
             RETURNING *
             `,
-            [data.notificationChannelId,data.errorMessage,data.channelType,data.payload,data.notifyPriority,data.attemptCount]
+            [data.notificationChannelId, data.errorMessage, data.channelType, data.payload, data.notifyPriority, data.attemptCount]
+        )
+        return result.rows[0];
+    }
+
+    static async fetchNotificationDetails(notiifyChannelId: string): Promise<notificationsRow> {
+        const result = await postgresPool.query<notificationsRow>(
+            `
+            SELECT n.* 
+            FROM notifications_channels nc
+            JOIN notifications n
+            ON nc.notification_id=n.id
+            WHERE nc.id=$1
+            `,
+            [notiifyChannelId]
+
         )
         return result.rows[0];
     }

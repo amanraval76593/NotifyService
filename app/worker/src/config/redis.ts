@@ -4,7 +4,7 @@ import config from ".";
 
 let redis: IORedis;
 
-export function initRedis() {
+export function initRedis(): Promise<IORedis> {
     redis = new IORedis({
         host: config.REDIS_HOST,
         port: config.REDIS_PORT ? parseInt(config.REDIS_PORT, 10) : undefined,
@@ -12,15 +12,17 @@ export function initRedis() {
         maxRetriesPerRequest: null,
     });
 
-    redis.on("connect", () => {
-        console.log("🔌 Worker connected to Redis");
-    });
+    return new Promise((resolve, reject) => {
+        redis.on("connect", () => {
+            console.log("🔌 Worker connected to Redis");
+            resolve(redis);
+        });
 
-    redis.on("error", (err) => {
-        console.error("❌ Redis error", err);
+        redis.on("error", (err) => {
+            console.error("❌ Redis error", err);
+            reject(err);
+        });
     });
-
-    return redis;
 }
 
 export function getRedis(): IORedis {
