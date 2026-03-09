@@ -8,6 +8,7 @@ CREATE TYPE priority_type AS ENUM('HIGH','MEDIUM','LOW');
 CREATE TABLE IF NOT EXISTS notifications(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
+    tenant_id UUID NOT NULL,
     event_type VARCHAR(100) NOT NULL,
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
